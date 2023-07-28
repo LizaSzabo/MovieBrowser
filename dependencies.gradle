@@ -23,6 +23,8 @@ ext {
 
             // DI
             "dagger"               : "2.44",
+            "hilt"                 : "2.44",
+            "hiltNavigation"       : "1.0.0-alpha03",
 
             // JetPack
             "navigation"           : "2.5.3",
@@ -74,7 +76,9 @@ ext {
     ]
 
     di = [
-            "dagger": "com.google.dagger:dagger:${versions.dagger}"
+            "dagger": "com.google.dagger:dagger:${versions.dagger}",
+            "hilt"  : "com.google.dagger:hilt-android:${versions.hilt}",
+            "hiltNavigation" : "androidx.hilt:hilt-navigation-compose:${versions.hiltNavigation}"
     ]
 
     utils = [
@@ -83,6 +87,7 @@ ext {
 
     annotation = [
             "dagger": "com.google.dagger:dagger-compiler:${versions.dagger}",
-            "room"  : "androidx.room:room-compiler:${versions.room}"
+            "room"  : "androidx.room:room-compiler:${versions.room}",
+            "hilt"  : "com.google.dagger:hilt-compiler:${versions.hilt}"
     ]
 }

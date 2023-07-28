@@ -7,33 +7,62 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mbh.moviebrowser.R
 
 @Composable
-fun MovieListScreen(viewModel: MovieListViewModel, onDetailsClicked: (Movie) -> Unit) {
-    MovieListScreenUI(viewModel.movies.collectAsState().value) {
-        viewModel.storeMovieForNavigation(it)
-        onDetailsClicked(it)
+fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsClicked: (Movie) -> Unit) {
+    val uiState: MovieListUIState by viewModel.uiState.collectAsState(Loading)
+
+    when (uiState) {
+        is Loading -> {
+            //  viewModel.getCocktails()
+
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier,
+                    color = colorResource(id = R.color.black)
+                )
+            }
+        }
+        is MovieListUIState.Error -> {
+            MovieListScreenUIError()
+        }
+        is MovieListUIState.MovieListReady -> {
+            MovieListScreenUI(viewModel.movies.collectAsState().value) {
+                viewModel.storeMovieForNavigation(it)
+                onDetailsClicked(it)
+            }
+        }
     }
 }
 
@@ -56,16 +85,20 @@ private fun MovieListItem(
     onDetailsClicked: (Movie) -> Unit,
 ) {
     Row(
-        Modifier.padding(horizontal = 16.dp, vertical = 8.dp).clickable {
-            onDetailsClicked(movie)
-        },
+        Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clickable {
+                onDetailsClicked(movie)
+            },
     ) {
         Box {
             AsyncImage(
                 model = movie.coverUrl,
                 contentDescription = null,
                 contentScale = ContentScale.FillWidth,
-                modifier = Modifier.width(80.dp).zIndex(1.0f),
+                modifier = Modifier
+                    .width(80.dp)
+                    .zIndex(1.0f),
             )
             val image = if (movie.isFavorite) {
                 painterResource(id = android.R.drawable.btn_star_big_on)
@@ -75,7 +108,10 @@ private fun MovieListItem(
             Image(
                 painter = image,
                 contentDescription = null,
-                modifier = Modifier.padding(all = 4.dp).zIndex(2.0f).align(Alignment.TopEnd),
+                modifier = Modifier
+                    .padding(all = 4.dp)
+                    .zIndex(2.0f)
+                    .align(Alignment.TopEnd),
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
@@ -94,6 +130,16 @@ private fun MovieListItem(
             Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(progress = movie.rating / 10.0f, modifier = Modifier.fillMaxWidth())
         }
+    }
+}
+
+@Composable
+fun MovieListScreenUIError() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "No movies found")
     }
 }
 
