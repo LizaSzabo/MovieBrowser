@@ -78,6 +78,7 @@ dependencies {
 
     // Coroutines
     implementation coroutines.coroutines
+    implementation coroutines.rainbowCake
 
     // DI
     implementation di.dagger

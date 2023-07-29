@@ -1,6 +1,6 @@
 package com.mbh.moviebrowser.features.movieList
 
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.model.Movie
 
 sealed class MovieListUIState {
     object Loading : MovieListUIState()
