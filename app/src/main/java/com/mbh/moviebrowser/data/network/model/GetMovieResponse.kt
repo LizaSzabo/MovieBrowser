@@ -10,7 +10,7 @@ data class GetMovieResponse(
     val overview: String,
     val poster_path: String,
     val media_type: String,
-    val genre_ids: List<Int>,
+    val genre_ids: List<Long>,
     val popularity: Double,
     val release_date: String,
     val video: Boolean,
