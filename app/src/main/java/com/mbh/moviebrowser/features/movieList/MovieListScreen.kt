@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
@@ -47,15 +47,14 @@ fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsCl
 
     when (uiState) {
         is Loading -> {
-            //  viewModel.getCocktails()
-
+            viewModel.getMovies()
             MovieListScreenUILoading()
         }
         is Error -> {
             MovieListScreenUIError((uiState as Error).errorMessage)
         }
         is MovieListReady -> {
-            MovieListScreenUI(viewModel.movies.collectAsState().value) {
+            MovieListScreenUI((uiState as MovieListReady).movies) {
                 viewModel.storeMovieForNavigation(it)
                 onDetailsClicked(it)
             }

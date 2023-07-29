@@ -1,6 +1,6 @@
 package com.mbh.moviebrowser.store
 
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.model.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MovieStore {

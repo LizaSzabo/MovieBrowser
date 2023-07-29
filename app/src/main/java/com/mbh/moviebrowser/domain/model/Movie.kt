@@ -1,4 +1,4 @@
-package com.mbh.moviebrowser.domain
+package com.mbh.moviebrowser.domain.model
 
 data class Movie(
     val id: Long,

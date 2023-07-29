@@ -23,7 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.model.Movie
 
 @Composable
 fun MovieDetailsScreen(viewModel: MovieDetailsViewModel) {
