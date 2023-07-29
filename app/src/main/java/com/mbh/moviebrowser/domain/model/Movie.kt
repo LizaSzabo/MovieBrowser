@@ -1,7 +1,7 @@
 package com.mbh.moviebrowser.domain.model
 
 import com.mbh.moviebrowser.data.network.model.GetMovieResponse
-import com.mbh.moviebrowser.data.network.model.GetMoviesResponse
+
 
 data class Movie(
     val id: Long,
@@ -18,7 +18,9 @@ fun GetMovieResponse.toMovie(genresString: String) = Movie(
     title = title,
     genres = genresString,
     overview = overview,
-    coverUrl = poster_path,
+    coverUrl = "https://image.tmdb.org/t/p/w500$poster_path",
     rating = vote_average,
     isFavorite = false,
 )
+
+

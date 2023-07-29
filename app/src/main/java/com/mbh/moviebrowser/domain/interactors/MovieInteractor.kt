@@ -7,6 +7,7 @@ import com.mbh.moviebrowser.data.network.util.NetworkResult
 import com.mbh.moviebrowser.data.network.util.NetworkUnavailable
 import com.mbh.moviebrowser.data.network.util.UnknownHostError
 import com.mbh.moviebrowser.domain.model.Movie
+import com.mbh.moviebrowser.domain.model.toMovie
 import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
 import com.mbh.moviebrowser.features.util.PresentationResponse
@@ -32,17 +33,25 @@ class MovieInteractor @Inject constructor(
                         )
                     )
                 )
-               // PresentationNetworkError("No Internet")
+                // PresentationNetworkError("No Internet")
             }
             is NetworkResult -> {
-                Log.i("movies", getMoviesResponse.result.results.toString())
-                PresentationResult( listOf(
-                    Movie(
-                        id = 111, title = "AAAAAA", genres = "", rating = 6.0F, isFavorite = false, overview =
-                        null, coverUrl = null
-                    )
-                ))
+                val movies =
+                    getMoviesResponse.result.results.map { movieFromApi -> movieFromApi.toMovie(getGenresString(movieFromApi.genre_ids)) }
+                PresentationResult(movies)
             }
         }
+    }
+
+    private fun getGenresString(genresIds: List<Long>): String {
+        var genresListAsString = ""
+        val genresNameList = genresIds.map { genreId -> getGenreById(genreId) }
+        genresNameList.forEach { genreName -> genresListAsString = "$genresListAsString$genreName, " }
+        genresListAsString.dropLast(2)
+        return genresListAsString
+    }
+
+    private fun getGenreById(genreId: Long): String {
+        return "aa"
     }
 }
