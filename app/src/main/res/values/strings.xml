@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">MovieBrowser</string>
+    <string name="movie_list_no_item_error_text">No movies found</string>
 </resources>

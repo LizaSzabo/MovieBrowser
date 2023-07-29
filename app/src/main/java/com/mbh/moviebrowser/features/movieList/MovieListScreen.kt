@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,13 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.domain.Movie
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
+import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
+import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mbh.moviebrowser.R
 
@@ -44,25 +49,30 @@ fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsCl
         is Loading -> {
             //  viewModel.getCocktails()
 
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier,
-                    color = colorResource(id = R.color.black)
-                )
-            }
+            MovieListScreenUILoading()
         }
-        is MovieListUIState.Error -> {
-            MovieListScreenUIError()
+        is Error -> {
+            MovieListScreenUIError((uiState as Error).errorMessage)
         }
-        is MovieListUIState.MovieListReady -> {
+        is MovieListReady -> {
             MovieListScreenUI(viewModel.movies.collectAsState().value) {
                 viewModel.storeMovieForNavigation(it)
                 onDetailsClicked(it)
             }
         }
+    }
+}
+
+@Composable
+fun MovieListScreenUILoading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(dimensionResource(id = R.dimen.large_icon_size)),
+            color = colorResource(id = R.color.blue)
+        )
     }
 }
 
@@ -134,12 +144,24 @@ private fun MovieListItem(
 }
 
 @Composable
-fun MovieListScreenUIError() {
+fun MovieListScreenUIError(errorMessage: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "No movies found")
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_search_off_24),
+                contentDescription = null,
+                Modifier.size(dimensionResource(id = R.dimen.large_icon_size)),
+            )
+            Text(
+                text = errorMessage,
+                fontSize = 26.sp,
+                color = colorResource(id = R.color.blue),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.small_padding))
+            )
+        }
     }
 }
 
