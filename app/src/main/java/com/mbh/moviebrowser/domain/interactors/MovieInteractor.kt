@@ -1,5 +1,6 @@
 package com.mbh.moviebrowser.domain.interactors
 
+import android.util.Log
 import com.mbh.moviebrowser.data.network.source.MovieNetworkDataSource
 import com.mbh.moviebrowser.data.network.util.NetworkError
 import com.mbh.moviebrowser.data.network.util.NetworkResult
@@ -17,9 +18,9 @@ class MovieInteractor @Inject constructor(
 ) {
 
     suspend fun getMovies(): PresentationResponse<List<Movie>> {
-        return when (val getCocktailsResponse = movieNetworkDataSource.getMovies()) {
+        return when (val getMoviesResponse = movieNetworkDataSource.getMovies()) {
             is NetworkError -> {
-                PresentationNetworkError(getCocktailsResponse.errorMessage)
+                PresentationNetworkError(getMoviesResponse.errorMessage)
             }
             UnknownHostError -> PresentationNetworkError("NoNetworkError")
             NetworkUnavailable -> {
@@ -34,6 +35,7 @@ class MovieInteractor @Inject constructor(
                // PresentationNetworkError("No Internet")
             }
             is NetworkResult -> {
+                Log.i("movies", getMoviesResponse.result.results.toString())
                 PresentationResult( listOf(
                     Movie(
                         id = 111, title = "AAAAAA", genres = "", rating = 6.0F, isFavorite = false, overview =

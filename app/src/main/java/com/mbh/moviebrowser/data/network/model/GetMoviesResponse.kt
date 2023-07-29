@@ -1,4 +1,8 @@
 package com.mbh.moviebrowser.data.network.model
 
-class GetMoviesResponse {
-}
+data class GetMoviesResponse(
+    val page: Int,
+    val results: List<GetMovieResponse>,
+    val total_pages: Int,
+    val total_results: Int,
+)
