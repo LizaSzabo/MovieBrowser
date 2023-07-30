@@ -7,11 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,17 +23,19 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
@@ -48,6 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mbh.moviebrowser.MovieBrowserApplication.Companion.appContext
 import com.mbh.moviebrowser.R
+import com.mbh.moviebrowser.features.widgets.SearchView
 
 @Composable
 fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel = hiltViewModel()) {
@@ -62,7 +62,10 @@ fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel 
             MovieListScreenUIError((uiState as Error).errorMessage)
         }
         is MovieListReady -> {
-            MovieListScreenUI(navController, (uiState as MovieListReady).movies)
+            MovieListScreenUI(navController, (uiState as MovieListReady).movies, viewModel::getMoreMovies)
+        }
+        is MovieListUIState.LocalMovieListReady -> {
+            MovieListScreenUI(navController, (uiState as MovieListUIState.LocalMovieListReady).movies) {}
         }
     }
 }
@@ -81,16 +84,28 @@ fun MovieListScreenUILoading() {
 }
 
 @Composable
-fun MovieListScreenUI(navController: NavController, movies: List<Movie>) {
-    Text(text = "Movie List")
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(movies) { item ->
-            MovieListItem(
-                movie = item,
-                onDetailsClicked = { selectedMovie ->
-                    navController.navigate("details/${selectedMovie.id}")
+fun MovieListScreenUI(navController: NavController, movies: List<Movie>, getMoreMovies: () -> Unit) {
+    val textState = remember { mutableStateOf(TextFieldValue("")) }
+    val filteredMovies = movies.filter { movie ->
+        movie.title.uppercase().contains(textState.value.text.uppercase())
+    }
+
+    Column {
+        SearchView(state = textState)
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(filteredMovies) { item ->
+                MovieListItem(
+                    movie = item,
+                    onDetailsClicked = { selectedMovie ->
+                        navController.navigate("details/${selectedMovie.id}")
+                    }
+                )
+            }
+            item {
+                LaunchedEffect(true) {
+                    getMoreMovies()
                 }
-            )
+            }
         }
     }
 }
@@ -103,18 +118,19 @@ private fun MovieListItem(
     Row(
         Modifier
             .padding(horizontal = dimensionResource(id = R.dimen.medium_padding), vertical = dimensionResource(id = R.dimen.small_padding))
+            .background(color = colorResource(id = R.color.blue_background))
             .clickable {
                 onDetailsClicked(movie)
             }
-            .background(color = colorResource(id = R.color.blue_background)),
     ) {
         Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_padding))) {
             AsyncImage(
                 model = movie.coverUrl,
                 contentDescription = null,
                 contentScale = ContentScale.FillHeight,
+                error = painterResource(R.drawable.baseline_hide_image_24),
                 modifier = Modifier
-                    .height(140.dp)
+                    .height(dimensionResource(id = R.dimen.image_height))
                     .zIndex(1.0f),
             )
             val image = if (movie.isFavorite) {
@@ -132,7 +148,10 @@ private fun MovieListItem(
             )
         }
         Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.large_padding)))
-        Column(modifier = Modifier.heightIn(min = 140.dp), verticalArrangement = Arrangement.SpaceBetween) {
+        Column(
+            modifier = Modifier.heightIn(min = dimensionResource(id = R.dimen.image_height)),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Column {
                 Text(
                     text = movie.title,
@@ -212,5 +231,6 @@ fun MovieListScreenUIPreview() {
                 isFavorite = false,
             ),
         ),
+        getMoreMovies = {}
     )
 }

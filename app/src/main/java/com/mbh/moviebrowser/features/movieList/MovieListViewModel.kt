@@ -3,14 +3,12 @@ package com.mbh.moviebrowser.features.movieList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mbh.moviebrowser.domain.interactors.MovieInteractor
-import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
 import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
 import com.mbh.moviebrowser.features.util.PresentationResult
-import com.mbh.moviebrowser.store.MovieStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,24 +28,31 @@ class MovieListViewModel @Inject constructor(
     fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val response = movieInteractor.getGenres()) {
-                is PresentationResult -> getMovies()
-                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
-                is PresentationLocalResult -> getMovies()
+                is PresentationResult -> getMovies(currentPage)
+                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: NETWORK_ERROR))
+                is PresentationLocalResult -> getMovies(currentPage)
             }
         }
     }
 
-    fun getMovies() {
+    private fun getMovies(currentPage: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val response = movieInteractor.getMovies()) {
+            when (val response = movieInteractor.getMovies(currentPage)) {
                 is PresentationResult -> _uiState.emit(MovieListReady(response.result))
-                is PresentationLocalResult -> _uiState.emit(MovieListReady(response.result))
-                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
+                is PresentationLocalResult -> _uiState.emit(MovieListUIState.LocalMovieListReady(response.result))
+                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: NETWORK_ERROR))
             }
         }
     }
 
-    fun storeMovieForNavigation(movie: Movie) {
-        MovieStore.detailsId.value = movie.id
+    fun getMoreMovies() {
+        currentPage++
+        getMovies(currentPage)
+    }
+
+    companion object {
+
+        private var currentPage = 1
+        private const val NETWORK_ERROR = "Network error"
     }
 }

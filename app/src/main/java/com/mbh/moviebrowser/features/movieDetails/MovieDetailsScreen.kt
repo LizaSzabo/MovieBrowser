@@ -26,7 +26,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.R
@@ -43,11 +42,7 @@ fun MovieDetailsScreen(viewModel: MovieDetailsViewModel = hiltViewModel(), movie
             MovieDetailsScreenUILoading()
         }
         is MovieDetailsUIState.MovieReady -> {
-
-            MovieDetailsScreenUI(
-                (uiState as MovieDetailsUIState.MovieReady).movie,
-                viewModel::onFavoriteClicked,
-            )
+            MovieDetailsScreenUI((uiState as MovieDetailsUIState.MovieReady).movie, viewModel::onFavoriteClicked)
         }
     }
 }
@@ -68,7 +63,7 @@ fun MovieDetailsScreenUILoading() {
 @Composable
 fun MovieDetailsScreenUI(
     movie: Movie?,
-    onFavoriteClicked: (Boolean) -> Unit,
+    onFavoriteClicked: (Boolean, Movie) -> Unit,
 ) {
     if (movie == null) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -81,7 +76,7 @@ fun MovieDetailsScreenUI(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = dimensionResource(id = R.dimen.large_padding)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.large_padding)))
@@ -101,7 +96,7 @@ fun MovieDetailsScreenUI(
             contentDescription = null,
             modifier = Modifier
                 .clickable {
-                    onFavoriteClicked(!movie.isFavorite)
+                    onFavoriteClicked(!movie.isFavorite, movie)
                 }
                 .size(dimensionResource(id = R.dimen.medium_icon_size)),
         )
@@ -110,8 +105,7 @@ fun MovieDetailsScreenUI(
             text = movie.title,
             style = MaterialTheme.typography.headlineMedium,
             color = colorResource(id = R.color.blue_dark),
-            modifier = Modifier
-                .padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+            modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))
@@ -142,6 +136,8 @@ fun MovieDetailsScreenUIPreview() {
             rating = 4.5f,
             isFavorite = false,
         ),
-        onFavoriteClicked = {},
+        onFavoriteClicked = ::onFavoriteClicked
     )
 }
+
+private fun onFavoriteClicked(isFavorite: Boolean, movie: Movie) {}

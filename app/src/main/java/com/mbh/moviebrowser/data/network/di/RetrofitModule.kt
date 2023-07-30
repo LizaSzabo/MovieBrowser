@@ -39,6 +39,6 @@ class RetrofitModule {
 
     companion object {
 
-        const val BaseUrl = "https://api.themoviedb.org/3/"
+        private const val BaseUrl = "https://api.themoviedb.org/3/"
     }
 }
