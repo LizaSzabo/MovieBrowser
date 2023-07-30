@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -80,6 +81,8 @@ dependencies {
 
     // DI
     implementation di.dagger
+    implementation di.hilt
+    implementation di.hiltNavigation
 
     // Utils
     implementation utils.gson
@@ -87,4 +90,5 @@ dependencies {
     // Kapt
     kapt annotation.dagger
     kapt annotation.room
+    kapt annotation.hilt
 }
