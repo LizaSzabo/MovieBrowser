@@ -68,7 +68,7 @@ fun MovieDetailsScreenUILoading() {
 @Composable
 fun MovieDetailsScreenUI(
     movie: Movie?,
-    onFavoriteClicked: (Boolean) -> Unit,
+    onFavoriteClicked: (Boolean, Movie) -> Unit,
 ) {
     if (movie == null) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -101,7 +101,7 @@ fun MovieDetailsScreenUI(
             contentDescription = null,
             modifier = Modifier
                 .clickable {
-                    onFavoriteClicked(!movie.isFavorite)
+                    onFavoriteClicked(!movie.isFavorite, movie)
                 }
                 .size(dimensionResource(id = R.dimen.medium_icon_size)),
         )
@@ -142,6 +142,8 @@ fun MovieDetailsScreenUIPreview() {
             rating = 4.5f,
             isFavorite = false,
         ),
-        onFavoriteClicked = {},
+        onFavoriteClicked = ::onFavoriteClicked
     )
 }
+
+private fun onFavoriteClicked(isFavorite: Boolean, movie: Movie) {}
