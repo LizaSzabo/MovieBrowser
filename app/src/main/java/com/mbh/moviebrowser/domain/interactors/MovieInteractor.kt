@@ -50,8 +50,8 @@ class MovieInteractor @Inject constructor(
         }
     }
 
-    suspend fun getMovies(): PresentationResponse<List<Movie>> {
-        return when (val getMoviesResponse = movieNetworkDataSource.getMovies()) {
+    suspend fun getMovies(currentPage: Int): PresentationResponse<List<Movie>> {
+        return when (val getMoviesResponse = movieNetworkDataSource.getMovies(currentPage)) {
             is NetworkError -> {
                 PresentationNetworkError(getMoviesResponse.errorMessage)
             }
