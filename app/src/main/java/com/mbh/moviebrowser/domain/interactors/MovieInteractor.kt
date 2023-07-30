@@ -1,6 +1,8 @@
 package com.mbh.moviebrowser.domain.interactors
 
 import android.util.Log
+import com.mbh.moviebrowser.data.database.source.GenreDataSource
+import com.mbh.moviebrowser.data.database.source.MovieDataSource
 import com.mbh.moviebrowser.data.network.source.MovieNetworkDataSource
 import com.mbh.moviebrowser.data.network.util.NetworkError
 import com.mbh.moviebrowser.data.network.util.NetworkResult
@@ -16,7 +18,9 @@ import com.mbh.moviebrowser.features.util.PresentationResult
 import javax.inject.Inject
 
 class MovieInteractor @Inject constructor(
-    private val movieNetworkDataSource: MovieNetworkDataSource
+    private val movieNetworkDataSource: MovieNetworkDataSource,
+    private val movieDataSource: MovieDataSource,
+    private val genreDataSource: GenreDataSource,
 ) {
 
     suspend fun getGenres(): PresentationResponse<String> {
