@@ -20,22 +20,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.R
 import com.mbh.moviebrowser.domain.model.Movie
-import com.mbh.moviebrowser.features.movieList.MovieListScreenUI
-import com.mbh.moviebrowser.features.movieList.MovieListScreenUIError
-import com.mbh.moviebrowser.features.movieList.MovieListScreenUILoading
-import com.mbh.moviebrowser.features.movieList.MovieListUIState
-import com.mbh.moviebrowser.features.movieList.MovieListViewModel
 
 @Composable
 fun MovieDetailsScreen(viewModel: MovieDetailsViewModel = hiltViewModel(), movieId: Long) {
@@ -47,7 +42,6 @@ fun MovieDetailsScreen(viewModel: MovieDetailsViewModel = hiltViewModel(), movie
             viewModel.getDetails(movieId)
             MovieDetailsScreenUILoading()
         }
-        is MovieDetailsUIState.Error -> TODO()
         is MovieDetailsUIState.MovieReady -> {
 
             MovieDetailsScreenUI(
@@ -90,12 +84,13 @@ fun MovieDetailsScreenUI(
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.large_padding)))
         AsyncImage(
             model = movie.coverUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.large_padding)))
         val image = if (movie.isFavorite) {
             painterResource(id = android.R.drawable.btn_star_big_on)
         } else {
@@ -104,21 +99,28 @@ fun MovieDetailsScreenUI(
         Image(
             painter = image,
             contentDescription = null,
-            modifier = Modifier.clickable {
-                onFavoriteClicked(!movie.isFavorite)
-            },
+            modifier = Modifier
+                .clickable {
+                    onFavoriteClicked(!movie.isFavorite)
+                }
+                .size(dimensionResource(id = R.dimen.medium_icon_size)),
         )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))
         Text(
             text = movie.title,
             style = MaterialTheme.typography.headlineMedium,
-            color = Color.White,
+            color = colorResource(id = R.color.blue_dark),
+            modifier = Modifier
+                .padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+            textAlign = TextAlign.Center,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))
         Text(
             text = movie.overview ?: "",
             style = MaterialTheme.typography.bodyLarge,
-            color = Color.White,
+            color = colorResource(id = R.color.blue_dark),
         )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.large_padding)))
     }
 }
 
