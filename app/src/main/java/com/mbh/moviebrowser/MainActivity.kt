@@ -10,17 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mbh.moviebrowser.features.movieDetails.MovieDetailsScreen
-import com.mbh.moviebrowser.features.movieDetails.MovieDetailsViewModel
 import com.mbh.moviebrowser.features.movieList.MovieListScreen
-import com.mbh.moviebrowser.features.movieList.MovieListViewModel
-import com.mbh.moviebrowser.store.MovieStore
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    val movieStore = MovieStore()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,4 +37,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-

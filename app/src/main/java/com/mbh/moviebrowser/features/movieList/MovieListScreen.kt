@@ -36,7 +36,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
@@ -45,7 +44,6 @@ import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mbh.moviebrowser.MovieBrowserApplication.Companion.appContext
 import com.mbh.moviebrowser.R
@@ -67,7 +65,7 @@ fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel 
             MovieListScreenUI(navController, (uiState as MovieListReady).movies, viewModel::getMoreMovies)
         }
         is MovieListUIState.LocalMovieListReady -> {
-            MovieListScreenUI(navController, (uiState as MovieListUIState.LocalMovieListReady).movies, {})
+            MovieListScreenUI(navController, (uiState as MovieListUIState.LocalMovieListReady).movies) {}
         }
     }
 }
@@ -120,10 +118,10 @@ private fun MovieListItem(
     Row(
         Modifier
             .padding(horizontal = dimensionResource(id = R.dimen.medium_padding), vertical = dimensionResource(id = R.dimen.small_padding))
+            .background(color = colorResource(id = R.color.blue_background))
             .clickable {
                 onDetailsClicked(movie)
             }
-            .background(color = colorResource(id = R.color.blue_background)),
     ) {
         Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_padding))) {
             AsyncImage(
@@ -132,7 +130,7 @@ private fun MovieListItem(
                 contentScale = ContentScale.FillHeight,
                 error = painterResource(R.drawable.baseline_hide_image_24),
                 modifier = Modifier
-                    .height(140.dp)
+                    .height(dimensionResource(id = R.dimen.image_height))
                     .zIndex(1.0f),
             )
             val image = if (movie.isFavorite) {
@@ -150,7 +148,10 @@ private fun MovieListItem(
             )
         }
         Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.large_padding)))
-        Column(modifier = Modifier.heightIn(min = 140.dp), verticalArrangement = Arrangement.SpaceBetween) {
+        Column(
+            modifier = Modifier.heightIn(min = dimensionResource(id = R.dimen.image_height)),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
             Column {
                 Text(
                     text = movie.title,
