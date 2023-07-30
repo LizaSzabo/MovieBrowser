@@ -27,6 +27,16 @@ class MovieListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<MovieListUIState>(Loading)
     val uiState: StateFlow<MovieListUIState> = _uiState.asStateFlow()
 
+    fun getData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val networkResponse = movieInteractor.getGenres()) {
+                is PresentationResult -> getMovies()
+                is PresentationNetworkError -> _uiState.emit(Error(networkResponse.message ?: "Network error"))
+                is PresentationLocalResult -> {}
+            }
+        }
+    }
+
     fun getMovies() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val networkResponse = movieInteractor.getMovies()) {

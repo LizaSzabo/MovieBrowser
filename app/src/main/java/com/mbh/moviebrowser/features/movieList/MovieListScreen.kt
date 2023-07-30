@@ -53,7 +53,7 @@ fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsCl
 
     when (uiState) {
         is Loading -> {
-            viewModel.getMovies()
+            viewModel.getData()
             MovieListScreenUILoading()
         }
         is Error -> {

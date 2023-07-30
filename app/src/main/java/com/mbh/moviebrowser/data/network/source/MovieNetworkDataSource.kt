@@ -8,6 +8,10 @@ class MovieNetworkDataSource @Inject constructor(
     private val movieManagerApi: MovieManagerApi
 ) {
 
+    suspend fun getGenres() = apiCall {
+        movieManagerApi.getGenres()
+    }
+
     suspend fun getMovies() = apiCall {
         movieManagerApi.getMovies()
     }
