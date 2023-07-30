@@ -1,6 +1,8 @@
 package com.mbh.moviebrowser.domain.interactors
 
 import android.util.Log
+import com.mbh.moviebrowser.data.database.source.GenreDataSource
+import com.mbh.moviebrowser.data.database.source.MovieDataSource
 import com.mbh.moviebrowser.data.network.source.MovieNetworkDataSource
 import com.mbh.moviebrowser.data.network.util.NetworkError
 import com.mbh.moviebrowser.data.network.util.NetworkResult
@@ -8,6 +10,7 @@ import com.mbh.moviebrowser.data.network.util.NetworkUnavailable
 import com.mbh.moviebrowser.data.network.util.UnknownHostError
 import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.domain.model.toMovie
+import com.mbh.moviebrowser.domain.model.toRoomMovie
 import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
 import com.mbh.moviebrowser.features.util.PresentationNoResult
@@ -16,7 +19,9 @@ import com.mbh.moviebrowser.features.util.PresentationResult
 import javax.inject.Inject
 
 class MovieInteractor @Inject constructor(
-    private val movieNetworkDataSource: MovieNetworkDataSource
+    private val movieNetworkDataSource: MovieNetworkDataSource,
+    private val movieDataSource: MovieDataSource,
+    private val genreDataSource: GenreDataSource,
 ) {
 
     suspend fun getGenres(): PresentationResponse<String> {
@@ -26,7 +31,8 @@ class MovieInteractor @Inject constructor(
             }
             UnknownHostError -> PresentationNetworkError("NoNetworkError")
             NetworkUnavailable -> {
-                PresentationNetworkError("No Internet")
+                //PresentationNetworkError("No Internet")
+                PresentationResult("")
             }
             is NetworkResult -> {
                 Log.i("genres", getGenresResponse.result.toString())
@@ -42,19 +48,19 @@ class MovieInteractor @Inject constructor(
             }
             UnknownHostError -> PresentationNetworkError("NoNetworkError")
             NetworkUnavailable -> {
-                PresentationLocalResult(
-                    listOf(
-                        Movie(
-                            id = 111, title = "", genres = "", rating = 1.0F, isFavorite = false, overview =
-                            null, coverUrl = null
-                        )
-                    )
-                )
-                // PresentationNetworkError("No Internet")
+                val roomMovies = movieDataSource.getMovies()
+                if (roomMovies.isEmpty()) {
+                    PresentationNetworkError("No Internet")
+                } else {
+                    val movies = roomMovies.map { roomMovie -> roomMovie.toMovie() }
+                    PresentationResult(movies)
+                }
             }
             is NetworkResult -> {
                 val movies =
                     getMoviesResponse.result.results.map { movieFromApi -> movieFromApi.toMovie(getGenresString(movieFromApi.genre_ids)) }
+                val roomMovies = movies.map { movie -> movie.toRoomMovie() }
+                movieDataSource.saveMovies(roomMovies)
                 PresentationResult(movies)
             }
         }
