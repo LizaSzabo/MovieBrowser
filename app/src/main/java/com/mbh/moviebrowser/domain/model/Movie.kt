@@ -1,7 +1,7 @@
 package com.mbh.moviebrowser.domain.model
 
+import com.mbh.moviebrowser.data.database.model.RoomMovie
 import com.mbh.moviebrowser.data.network.model.GetMovieResponse
-
 
 data class Movie(
     val id: Long,
@@ -20,6 +20,26 @@ fun GetMovieResponse.toMovie(genresString: String) = Movie(
     overview = overview,
     coverUrl = "https://image.tmdb.org/t/p/w500$poster_path",
     rating = vote_average,
+    isFavorite = false,
+)
+
+fun Movie.toRoomMovie() = RoomMovie(
+    id = id,
+    title = title,
+    genres = genres,
+    overview = overview,
+    coverUrl = coverUrl,
+    rating = rating,
+    isFavorite = false,
+)
+
+fun RoomMovie.toMovie() = Movie(
+    id = id,
+    title = title,
+    genres = genres,
+    overview = overview,
+    coverUrl = coverUrl,
+    rating = rating,
     isFavorite = false,
 )
 
