@@ -45,10 +45,12 @@ import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.mbh.moviebrowser.MovieBrowserApplication.Companion.appContext
 import com.mbh.moviebrowser.R
 
 @Composable
-fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsClicked: (Movie) -> Unit) {
+fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel = hiltViewModel()) {
     val uiState: MovieListUIState by viewModel.uiState.collectAsState(Loading)
 
     when (uiState) {
@@ -60,10 +62,7 @@ fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsCl
             MovieListScreenUIError((uiState as Error).errorMessage)
         }
         is MovieListReady -> {
-            MovieListScreenUI((uiState as MovieListReady).movies) {
-                viewModel.storeMovieForNavigation(it)
-                onDetailsClicked(it)
-            }
+            MovieListScreenUI(navController, (uiState as MovieListReady).movies)
         }
     }
 }
@@ -82,13 +81,15 @@ fun MovieListScreenUILoading() {
 }
 
 @Composable
-fun MovieListScreenUI(movies: List<Movie>, onDetailsClicked: (Movie) -> Unit) {
+fun MovieListScreenUI(navController: NavController, movies: List<Movie>) {
     Text(text = "Movie List")
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
         items(movies) { item ->
             MovieListItem(
                 movie = item,
-                onDetailsClicked,
+                onDetailsClicked = { selectedMovie ->
+                    navController.navigate("details/${selectedMovie.id}")
+                }
             )
         }
     }
@@ -190,6 +191,7 @@ fun MovieListScreenUIError(errorMessage: String) {
 )
 fun MovieListScreenUIPreview() {
     MovieListScreenUI(
+        NavController(appContext),
         listOf(
             Movie(
                 id = 455476,
@@ -210,6 +212,5 @@ fun MovieListScreenUIPreview() {
                 isFavorite = false,
             ),
         ),
-        onDetailsClicked = {},
     )
 }

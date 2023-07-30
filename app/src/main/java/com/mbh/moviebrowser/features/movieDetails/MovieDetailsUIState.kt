@@ -4,6 +4,6 @@ import com.mbh.moviebrowser.domain.model.Movie
 
 sealed class MovieDetailsUIState {
     object Loading : MovieDetailsUIState()
-    class MovieListReady(val movie: Movie) : MovieDetailsUIState()
+    class MovieReady(val movie: Movie) : MovieDetailsUIState()
     class Error(val errorMessage: String) : MovieDetailsUIState()
 }

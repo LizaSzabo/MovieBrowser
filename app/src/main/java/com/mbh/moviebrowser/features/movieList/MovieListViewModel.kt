@@ -29,20 +29,20 @@ class MovieListViewModel @Inject constructor(
 
     fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val networkResponse = movieInteractor.getGenres()) {
+            when (val response = movieInteractor.getGenres()) {
                 is PresentationResult -> getMovies()
-                is PresentationNetworkError -> _uiState.emit(Error(networkResponse.message ?: "Network error"))
-                is PresentationLocalResult -> {}
+                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
+                is PresentationLocalResult -> getMovies()
             }
         }
     }
 
     fun getMovies() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val networkResponse = movieInteractor.getMovies()) {
-                is PresentationResult -> _uiState.emit(MovieListReady(networkResponse.result))
-                is PresentationLocalResult -> _uiState.emit(MovieListReady(networkResponse.result))
-                is PresentationNetworkError -> _uiState.emit(Error(networkResponse.message ?: "Network error"))
+            when (val response = movieInteractor.getMovies()) {
+                is PresentationResult -> _uiState.emit(MovieListReady(response.result))
+                is PresentationLocalResult -> _uiState.emit(MovieListReady(response.result))
+                is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
             }
         }
     }

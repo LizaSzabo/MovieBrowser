@@ -14,4 +14,7 @@ interface MovieDao {
 
     @Query("SELECT * FROM movie")
     fun getAllMovies(): List<RoomMovie>
+
+    @Query("SELECT * FROM movie WHERE id = :movieId")
+    fun getMovie(movieId: Long): RoomMovie
 }

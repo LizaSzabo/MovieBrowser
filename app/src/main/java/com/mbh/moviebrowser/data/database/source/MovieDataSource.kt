@@ -11,7 +11,7 @@ class MovieDataSource(
         movieDao.saveMovies(roomMovies)
     }
 
-    fun getMovies(): List<RoomMovie> {
-        return movieDao.getAllMovies()
-    }
+    fun getMovies(): List<RoomMovie> = movieDao.getAllMovies()
+
+    fun getMovieById(movieId: Long): RoomMovie = movieDao.getMovie(movieId)
 }
