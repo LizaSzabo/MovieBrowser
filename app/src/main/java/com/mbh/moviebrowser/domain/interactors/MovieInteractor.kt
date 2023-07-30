@@ -12,6 +12,7 @@ import com.mbh.moviebrowser.data.network.util.UnknownHostError
 import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.domain.model.toMovie
 import com.mbh.moviebrowser.domain.model.toRoomMovie
+import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
 import com.mbh.moviebrowser.features.util.PresentationResponse
 import com.mbh.moviebrowser.features.util.PresentationResult
@@ -75,7 +76,7 @@ class MovieInteractor @Inject constructor(
                             if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
                             else movie
                         }
-                        PresentationResult(moviesWithFavouriteMark)
+                        PresentationLocalResult(moviesWithFavouriteMark)
                     }
                 }
                 is NetworkResult -> {

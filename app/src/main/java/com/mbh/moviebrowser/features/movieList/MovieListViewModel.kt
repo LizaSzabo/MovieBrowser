@@ -1,5 +1,6 @@
 package com.mbh.moviebrowser.features.movieList
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mbh.moviebrowser.domain.interactors.MovieInteractor
@@ -46,7 +47,7 @@ class MovieListViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (val response = movieInteractor.getMovies(currentPage)) {
                 is PresentationResult -> _uiState.emit(MovieListReady(response.result))
-                is PresentationLocalResult -> _uiState.emit(MovieListReady(response.result))
+                is PresentationLocalResult -> _uiState.emit(MovieListUIState.LocalMovieListReady(response.result))
                 is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
             }
         }
