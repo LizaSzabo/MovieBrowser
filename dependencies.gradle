@@ -20,7 +20,6 @@ ext {
 
             // Flow
             "coroutines"           : "1.6.4",
-            "rainbowCake"          : "1.6.0",
 
             // DI
             "dagger"               : "2.44",
@@ -73,8 +72,7 @@ ext {
     ]
 
     coroutines = [
-            "coroutines" : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
-            "rainbowCake": "co.zsmb:rainbow-cake-core:${versions.rainbowCake}"
+            "coroutines": "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
     ]
 
     di = [

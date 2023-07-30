@@ -35,13 +35,12 @@ fun SearchView(state: MutableState<TextFieldValue>) {
         onValueChange = { value ->
             state.value = value
         },
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         textStyle = TextStyle(color = Color.DarkGray, fontSize = 22.sp),
         leadingIcon = {
             Icon(
                 Icons.Default.Search,
-                contentDescription = "",
+                contentDescription = null,
                 modifier = Modifier
                     .padding(15.dp)
                     .size(dimensionResource(id = R.dimen.small_icon_size))
@@ -60,7 +59,7 @@ fun SearchView(state: MutableState<TextFieldValue>) {
                 ) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "",
+                        contentDescription = null,
                     )
                 }
             }

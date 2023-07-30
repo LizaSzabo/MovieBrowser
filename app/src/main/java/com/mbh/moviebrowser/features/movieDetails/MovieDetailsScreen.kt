@@ -26,7 +26,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.mbh.moviebrowser.R
@@ -43,11 +42,7 @@ fun MovieDetailsScreen(viewModel: MovieDetailsViewModel = hiltViewModel(), movie
             MovieDetailsScreenUILoading()
         }
         is MovieDetailsUIState.MovieReady -> {
-
-            MovieDetailsScreenUI(
-                (uiState as MovieDetailsUIState.MovieReady).movie,
-                viewModel::onFavoriteClicked,
-            )
+            MovieDetailsScreenUI((uiState as MovieDetailsUIState.MovieReady).movie, viewModel::onFavoriteClicked)
         }
     }
 }
@@ -81,7 +76,7 @@ fun MovieDetailsScreenUI(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = dimensionResource(id = R.dimen.large_padding)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.large_padding)))
@@ -110,8 +105,7 @@ fun MovieDetailsScreenUI(
             text = movie.title,
             style = MaterialTheme.typography.headlineMedium,
             color = colorResource(id = R.color.blue_dark),
-            modifier = Modifier
-                .padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
+            modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen.medium_padding)),
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))

@@ -1,6 +1,5 @@
 package com.mbh.moviebrowser.data.network.util
 
-
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -17,12 +16,9 @@ class NetworkResult<out T : Any>(val result: T) : NetworkResponse<T>()
 class NetworkError(val errorMessage: String? = null, val code: Int? = null) : NetworkNoResult()
 
 object UnknownHostError : NetworkNoResult()
+
 object NetworkUnavailable : NetworkNoResult()
 
-/**
- * Executes the given network call and handles the exceptions
- * Wraps the results in a [NetworkResponse]
- */
 suspend fun <T : Any> apiCall(block: suspend () -> T): NetworkResponse<T> {
     if (isInternetAvailable().not()) {
         return NetworkUnavailable
