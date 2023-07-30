@@ -27,27 +27,33 @@ class MovieListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<MovieListUIState>(Loading)
     val uiState: StateFlow<MovieListUIState> = _uiState.asStateFlow()
 
+    companion object {
+
+        var currentPage = 1
+    }
+
     fun getData() {
         viewModelScope.launch(Dispatchers.IO) {
             when (val response = movieInteractor.getGenres()) {
-                is PresentationResult -> getMovies()
+                is PresentationResult -> getMovies(currentPage)
                 is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
-                is PresentationLocalResult -> getMovies()
+                is PresentationLocalResult -> getMovies(currentPage)
             }
         }
     }
 
-    fun getMovies() {
+    private fun getMovies(currentPage: Int, currentMovies: List<Movie> = emptyList()) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val response = movieInteractor.getMovies()) {
-                is PresentationResult -> _uiState.emit(MovieListReady(response.result))
+            when (val response = movieInteractor.getMovies(currentPage)) {
+                is PresentationResult -> _uiState.emit(MovieListReady(currentMovies + response.result))
                 is PresentationLocalResult -> _uiState.emit(MovieListReady(response.result))
                 is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
             }
         }
     }
 
-    fun storeMovieForNavigation(movie: Movie) {
-        MovieStore.detailsId.value = movie.id
+    fun getMoreMovies(currentMovies: List<Movie> ) {
+        currentPage++
+        getMovies(currentPage, currentMovies)
     }
 }

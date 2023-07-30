@@ -12,7 +12,7 @@ class MovieNetworkDataSource @Inject constructor(
         movieManagerApi.getGenres()
     }
 
-    suspend fun getMovies() = apiCall {
-        movieManagerApi.getMovies()
+    suspend fun getMovies(page: Int) = apiCall {
+        movieManagerApi.getMovies(page = page)
     }
 }
