@@ -42,18 +42,18 @@ class MovieListViewModel @Inject constructor(
         }
     }
 
-    private fun getMovies(currentPage: Int, currentMovies: List<Movie> = emptyList()) {
+    private fun getMovies(currentPage: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             when (val response = movieInteractor.getMovies(currentPage)) {
-                is PresentationResult -> _uiState.emit(MovieListReady(currentMovies + response.result))
+                is PresentationResult -> _uiState.emit(MovieListReady(response.result))
                 is PresentationLocalResult -> _uiState.emit(MovieListReady(response.result))
                 is PresentationNetworkError -> _uiState.emit(Error(response.message ?: "Network error"))
             }
         }
     }
 
-    fun getMoreMovies(currentMovies: List<Movie> ) {
+    fun getMoreMovies() {
         currentPage++
-        getMovies(currentPage, currentMovies)
+        getMovies(currentPage)
     }
 }
