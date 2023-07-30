@@ -23,6 +23,11 @@ class MovieInteractor @Inject constructor(
     private val genreDataSource: GenreDataSource,
 ) {
 
+    companion object {
+
+        private val favouriteMovies = mutableListOf<Long>()
+    }
+
     suspend fun getGenres(): PresentationResponse<String> {
         return when (val getGenresResponse = movieNetworkDataSource.getGenres()) {
             is NetworkError -> {
@@ -57,15 +62,24 @@ class MovieInteractor @Inject constructor(
                     PresentationNetworkError("No Internet")
                 } else {
                     val movies = roomMovies.map { roomMovie -> roomMovie.toMovie() }
-                    PresentationResult(movies)
+                    val moviesWithFavouriteMark = movies.map { movie ->
+                        if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
+                        else movie
+                    }
+                    PresentationResult(moviesWithFavouriteMark)
                 }
             }
             is NetworkResult -> {
+                Log.i("favourite ", favouriteMovies.toString())
                 val movies =
                     getMoviesResponse.result.results.map { movieFromApi -> movieFromApi.toMovie(getGenresString(movieFromApi.genre_ids)) }
-                val roomMovies = movies.map { movie -> movie.toRoomMovie() }
+                val moviesWithFavouriteMark = movies.map { movie ->
+                    if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
+                    else movie
+                }
+                val roomMovies = moviesWithFavouriteMark.map { movie -> movie.toRoomMovie() }
                 movieDataSource.saveMovies(roomMovies)
-                PresentationResult(movies)
+                PresentationResult(moviesWithFavouriteMark)
             }
         }
     }
@@ -82,6 +96,17 @@ class MovieInteractor @Inject constructor(
         return genreDataSource.getGenreById(genreId)?.name ?: ""
     }
 
-    fun getDetails(movieId: Long): Movie = movieDataSource.getMovieById(movieId).toMovie()
+    fun getDetails(movieId: Long): Movie {
+        val movieFromDB = movieDataSource.getMovieById(movieId).toMovie()
+        return if (favouriteMovies.contains(movieFromDB.id)) movieFromDB.copy(isFavorite = true) else movieFromDB
+    }
+
+    fun addToFavouritesList(movieId: Long) {
+        favouriteMovies.add(movieId)
+    }
+
+    fun deleteFromFavouritesList(movieId: Long) {
+        favouriteMovies.remove(movieId)
+    }
 
 }
