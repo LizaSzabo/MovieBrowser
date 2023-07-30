@@ -66,6 +66,9 @@ fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel 
         is MovieListReady -> {
             MovieListScreenUI(navController, (uiState as MovieListReady).movies, viewModel::getMoreMovies)
         }
+        is MovieListUIState.LocalMovieListReady -> {
+            MovieListScreenUI(navController, (uiState as MovieListUIState.LocalMovieListReady).movies, {})
+        }
     }
 }
 
@@ -127,6 +130,7 @@ private fun MovieListItem(
                 model = movie.coverUrl,
                 contentDescription = null,
                 contentScale = ContentScale.FillHeight,
+                error = painterResource(R.drawable.baseline_hide_image_24),
                 modifier = Modifier
                     .height(140.dp)
                     .zIndex(1.0f),
