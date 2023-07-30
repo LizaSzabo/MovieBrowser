@@ -2,15 +2,22 @@ package com.mbh.moviebrowser.features.movieList
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,13 +33,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
-import com.mbh.moviebrowser.domain.Movie
+import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.features.movieList.MovieListUIState.Loading
+import com.mbh.moviebrowser.features.movieList.MovieListUIState.Error
+import com.mbh.moviebrowser.features.movieList.MovieListUIState.MovieListReady
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mbh.moviebrowser.R
 
@@ -42,27 +53,31 @@ fun MovieListScreen(viewModel: MovieListViewModel = hiltViewModel(), onDetailsCl
 
     when (uiState) {
         is Loading -> {
-            //  viewModel.getCocktails()
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier,
-                    color = colorResource(id = R.color.black)
-                )
-            }
+            viewModel.getData()
+            MovieListScreenUILoading()
         }
-        is MovieListUIState.Error -> {
-            MovieListScreenUIError()
+        is Error -> {
+            MovieListScreenUIError((uiState as Error).errorMessage)
         }
-        is MovieListUIState.MovieListReady -> {
-            MovieListScreenUI(viewModel.movies.collectAsState().value) {
+        is MovieListReady -> {
+            MovieListScreenUI((uiState as MovieListReady).movies) {
                 viewModel.storeMovieForNavigation(it)
                 onDetailsClicked(it)
             }
         }
+    }
+}
+
+@Composable
+fun MovieListScreenUILoading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(dimensionResource(id = R.dimen.large_icon_size)),
+            color = colorResource(id = R.color.blue)
+        )
     }
 }
 
@@ -86,18 +101,19 @@ private fun MovieListItem(
 ) {
     Row(
         Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = dimensionResource(id = R.dimen.medium_padding), vertical = dimensionResource(id = R.dimen.small_padding))
             .clickable {
                 onDetailsClicked(movie)
-            },
+            }
+            .background(color = colorResource(id = R.color.blue_background)),
     ) {
-        Box {
+        Box(modifier = Modifier.padding(dimensionResource(id = R.dimen.small_padding))) {
             AsyncImage(
                 model = movie.coverUrl,
                 contentDescription = null,
-                contentScale = ContentScale.FillWidth,
+                contentScale = ContentScale.FillHeight,
                 modifier = Modifier
-                    .width(80.dp)
+                    .height(140.dp)
                     .zIndex(1.0f),
             )
             val image = if (movie.isFavorite) {
@@ -109,37 +125,59 @@ private fun MovieListItem(
                 painter = image,
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(all = 4.dp)
+                    .padding(all = dimensionResource(id = R.dimen.small_padding))
                     .zIndex(2.0f)
                     .align(Alignment.TopEnd),
             )
         }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(
-                text = movie.title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = movie.genres,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(progress = movie.rating / 10.0f, modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.large_padding)))
+        Column(modifier = Modifier.heightIn(min = 140.dp), verticalArrangement = Arrangement.SpaceBetween) {
+            Column {
+                Text(
+                    text = movie.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = colorResource(id = R.color.blue_dark),
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.small_padding)))
+                Text(
+                    text = movie.genres,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colorResource(id = R.color.blue_dark),
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))
+            }
+            Column {
+                LinearProgressIndicator(
+                    progress = movie.rating / 10.0f,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(dimensionResource(id = R.dimen.medium_padding))
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.medium_padding)))
+            }
         }
     }
 }
 
 @Composable
-fun MovieListScreenUIError() {
+fun MovieListScreenUIError(errorMessage: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "No movies found")
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_search_off_24),
+                contentDescription = null,
+                Modifier.size(dimensionResource(id = R.dimen.large_icon_size)),
+            )
+            Text(
+                text = errorMessage,
+                fontSize = 26.sp,
+                color = colorResource(id = R.color.blue),
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.small_padding))
+            )
+        }
     }
 }
 
