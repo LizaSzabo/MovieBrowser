@@ -26,6 +26,8 @@ class MovieInteractor @Inject constructor(
     companion object {
 
         private val favouriteMovies = mutableListOf<Long>()
+        private val loadedMovies = mutableListOf<Movie>()
+        private var lastPage = 0
     }
 
     suspend fun getGenres(): PresentationResponse<String> {
@@ -51,35 +53,44 @@ class MovieInteractor @Inject constructor(
     }
 
     suspend fun getMovies(currentPage: Int): PresentationResponse<List<Movie>> {
-        return when (val getMoviesResponse = movieNetworkDataSource.getMovies(currentPage)) {
-            is NetworkError -> {
-                PresentationNetworkError(getMoviesResponse.errorMessage)
+        if (lastPage == currentPage) {
+            val moviesWithFavouriteMark = loadedMovies.map { movie ->
+                if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
+                else movie
             }
-            UnknownHostError -> PresentationNetworkError("NoNetworkError")
-            NetworkUnavailable -> {
-                val roomMovies = movieDataSource.getMovies()
-                if (roomMovies.isEmpty()) {
-                    PresentationNetworkError("No Internet")
-                } else {
-                    val movies = roomMovies.map { roomMovie -> roomMovie.toMovie() }
-                    val moviesWithFavouriteMark = movies.map { movie ->
+            return PresentationResult(moviesWithFavouriteMark)
+        } else {
+            lastPage = currentPage
+            return when (val getMoviesResponse = movieNetworkDataSource.getMovies(currentPage)) {
+                is NetworkError -> {
+                    PresentationNetworkError(getMoviesResponse.errorMessage)
+                }
+                UnknownHostError -> PresentationNetworkError("NoNetworkError")
+                NetworkUnavailable -> {
+                    val currentMoviesFromDB = movieDataSource.getMovies().map { roomMovie -> roomMovie.toMovie() }
+                    if (currentMoviesFromDB.isEmpty()) {
+                        PresentationNetworkError("No Internet")
+                    } else {
+                        val moviesWithFavouriteMark = currentMoviesFromDB.map { movie ->
+                            if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
+                            else movie
+                        }
+                        PresentationResult(moviesWithFavouriteMark)
+                    }
+                }
+                is NetworkResult -> {
+                    Log.i("networkResult", "result")
+                    val movies =
+                        getMoviesResponse.result.results.map { movieFromApi -> movieFromApi.toMovie(getGenresString(movieFromApi.genre_ids)) }
+                    val roomMovies = movies.map { movie -> movie.toRoomMovie() }
+                    movieDataSource.saveMovies(roomMovies)
+                    loadedMovies.addAll(movies)
+                    val moviesWithFavouriteMark = loadedMovies.map { movie ->
                         if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
                         else movie
                     }
                     PresentationResult(moviesWithFavouriteMark)
                 }
-            }
-            is NetworkResult -> {
-                Log.i("favourite ", favouriteMovies.toString())
-                val movies =
-                    getMoviesResponse.result.results.map { movieFromApi -> movieFromApi.toMovie(getGenresString(movieFromApi.genre_ids)) }
-                val moviesWithFavouriteMark = movies.map { movie ->
-                    if (favouriteMovies.contains(movie.id)) movie.copy(isFavorite = true)
-                    else movie
-                }
-                val roomMovies = moviesWithFavouriteMark.map { movie -> movie.toRoomMovie() }
-                movieDataSource.saveMovies(roomMovies)
-                PresentationResult(moviesWithFavouriteMark)
             }
         }
     }

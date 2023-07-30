@@ -83,7 +83,7 @@ fun MovieListScreenUILoading() {
 }
 
 @Composable
-fun MovieListScreenUI(navController: NavController, movies: List<Movie>, getMoreMovies: (List<Movie>) -> Unit) {
+fun MovieListScreenUI(navController: NavController, movies: List<Movie>, getMoreMovies: () -> Unit) {
     val textState = remember { mutableStateOf(TextFieldValue("")) }
     val filteredMovies = movies.filter { movie ->
         movie.title.uppercase().contains(textState.value.text.uppercase())
@@ -102,7 +102,7 @@ fun MovieListScreenUI(navController: NavController, movies: List<Movie>, getMore
             }
             item {
                 LaunchedEffect(true) {
-                    getMoreMovies(movies)
+                    getMoreMovies()
                 }
             }
         }
