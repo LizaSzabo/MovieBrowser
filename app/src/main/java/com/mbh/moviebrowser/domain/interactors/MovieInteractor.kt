@@ -3,6 +3,7 @@ package com.mbh.moviebrowser.domain.interactors
 import android.util.Log
 import com.mbh.moviebrowser.data.database.source.GenreDataSource
 import com.mbh.moviebrowser.data.database.source.MovieDataSource
+import com.mbh.moviebrowser.data.network.model.toRoomGenre
 import com.mbh.moviebrowser.data.network.source.MovieNetworkDataSource
 import com.mbh.moviebrowser.data.network.util.NetworkError
 import com.mbh.moviebrowser.data.network.util.NetworkResult
@@ -11,9 +12,7 @@ import com.mbh.moviebrowser.data.network.util.UnknownHostError
 import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.domain.model.toMovie
 import com.mbh.moviebrowser.domain.model.toRoomMovie
-import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
-import com.mbh.moviebrowser.features.util.PresentationNoResult
 import com.mbh.moviebrowser.features.util.PresentationResponse
 import com.mbh.moviebrowser.features.util.PresentationResult
 import javax.inject.Inject
@@ -31,11 +30,16 @@ class MovieInteractor @Inject constructor(
             }
             UnknownHostError -> PresentationNetworkError("NoNetworkError")
             NetworkUnavailable -> {
-                //PresentationNetworkError("No Internet")
-                PresentationResult("")
+                val roomGenres = genreDataSource.getGenres()
+                if (roomGenres.isEmpty()) {
+                    PresentationNetworkError("No Internet")
+                } else {
+                    PresentationResult("")
+                }
             }
             is NetworkResult -> {
-                Log.i("genres", getGenresResponse.result.toString())
+                val roomGenres = getGenresResponse.result.genres.map { genreFromApi -> genreFromApi.toRoomGenre() }
+                genreDataSource.saveGenres(roomGenres)
                 PresentationResult("")
             }
         }
@@ -70,11 +74,14 @@ class MovieInteractor @Inject constructor(
         var genresListAsString = ""
         val genresNameList = genresIds.map { genreId -> getGenreById(genreId) }
         genresNameList.forEach { genreName -> genresListAsString = "$genresListAsString$genreName, " }
-        genresListAsString.dropLast(2)
+        genresListAsString = genresListAsString.dropLast(2)
         return genresListAsString
     }
 
     private fun getGenreById(genreId: Long): String {
-        return "aa"
+        return genreDataSource.getGenreById(genreId)?.name ?: ""
     }
+
+    fun getDetails(movieId: Long): Movie = movieDataSource.getMovieById(movieId).toMovie()
+
 }

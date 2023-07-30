@@ -14,4 +14,7 @@ interface GenreDao {
 
     @Query("SELECT * FROM genre WHERE id = :genreId")
     fun getGenre(genreId: Long): RoomGenre?
+
+    @Query("SELECT * FROM genre")
+    fun getGenres(): List<RoomGenre>
 }

@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.mbh.moviebrowser.features.movieDetails.MovieDetailsScreen
 import com.mbh.moviebrowser.features.movieDetails.MovieDetailsViewModel
 import com.mbh.moviebrowser.features.movieList.MovieListScreen
@@ -26,19 +28,19 @@ class MainActivity : AppCompatActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = "list") {
                     composable("list") {
-                        MovieListScreen(
-                            onDetailsClicked = {
-                                navController.navigate("details")
-                            },
-                        )
+                        MovieListScreen(navController)
                     }
-                    composable("details") {
-                        MovieDetailsScreen(
-                            viewModel = MovieDetailsViewModel(),
-                        )
+                    composable(
+                        "details/{movieId}",
+                        arguments = listOf(navArgument("movieId") { type = NavType.LongType })
+                    ) { backStackEntry ->
+                        backStackEntry.arguments?.getLong("movieId")?.let { movieId ->
+                            MovieDetailsScreen(movieId = movieId)
+                        }
                     }
                 }
             }
         }
     }
 }
+

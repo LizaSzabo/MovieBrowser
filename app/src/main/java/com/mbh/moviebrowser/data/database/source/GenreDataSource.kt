@@ -14,4 +14,8 @@ class GenreDataSource(
     fun getGenreById(id: Long): RoomGenre? {
         return genreDao.getGenre(id)
     }
+
+    fun getGenres(): List<RoomGenre>{
+        return genreDao.getGenres()
+    }
 }
