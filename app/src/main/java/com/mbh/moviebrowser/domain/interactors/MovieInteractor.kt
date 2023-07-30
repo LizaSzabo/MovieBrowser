@@ -10,6 +10,7 @@ import com.mbh.moviebrowser.domain.model.Movie
 import com.mbh.moviebrowser.domain.model.toMovie
 import com.mbh.moviebrowser.features.util.PresentationLocalResult
 import com.mbh.moviebrowser.features.util.PresentationNetworkError
+import com.mbh.moviebrowser.features.util.PresentationNoResult
 import com.mbh.moviebrowser.features.util.PresentationResponse
 import com.mbh.moviebrowser.features.util.PresentationResult
 import javax.inject.Inject
@@ -17,6 +18,22 @@ import javax.inject.Inject
 class MovieInteractor @Inject constructor(
     private val movieNetworkDataSource: MovieNetworkDataSource
 ) {
+
+    suspend fun getGenres(): PresentationResponse<String> {
+        return when (val getGenresResponse = movieNetworkDataSource.getGenres()) {
+            is NetworkError -> {
+                PresentationNetworkError(getGenresResponse.errorMessage)
+            }
+            UnknownHostError -> PresentationNetworkError("NoNetworkError")
+            NetworkUnavailable -> {
+                PresentationNetworkError("No Internet")
+            }
+            is NetworkResult -> {
+                Log.i("genres", getGenresResponse.result.toString())
+                PresentationResult("")
+            }
+        }
+    }
 
     suspend fun getMovies(): PresentationResponse<List<Movie>> {
         return when (val getMoviesResponse = movieNetworkDataSource.getMovies()) {
