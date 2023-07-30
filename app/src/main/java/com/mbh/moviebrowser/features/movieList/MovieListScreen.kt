@@ -28,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mbh.moviebrowser.MovieBrowserApplication.Companion.appContext
 import com.mbh.moviebrowser.R
+import com.mbh.moviebrowser.features.widgets.SearchView
 
 @Composable
 fun MovieListScreen(navController: NavController, viewModel: MovieListViewModel = hiltViewModel()) {
@@ -82,15 +86,22 @@ fun MovieListScreenUILoading() {
 
 @Composable
 fun MovieListScreenUI(navController: NavController, movies: List<Movie>) {
-    Text(text = "Movie List")
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-        items(movies) { item ->
-            MovieListItem(
-                movie = item,
-                onDetailsClicked = { selectedMovie ->
-                    navController.navigate("details/${selectedMovie.id}")
-                }
-            )
+    val textState = remember { mutableStateOf(TextFieldValue("")) }
+    val filteredMovies =  movies.filter { movie ->
+        movie.title.uppercase().contains(textState.value.text.uppercase())
+    }
+
+    Column {
+        SearchView(state = textState)
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(filteredMovies) { item ->
+                MovieListItem(
+                    movie = item,
+                    onDetailsClicked = { selectedMovie ->
+                        navController.navigate("details/${selectedMovie.id}")
+                    }
+                )
+            }
         }
     }
 }
